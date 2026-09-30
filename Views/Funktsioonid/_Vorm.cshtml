@@ -1,0 +1,13 @@
+@model FunktsiooniUurimine
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="mb-3">
+        <label asp-for="Valem" class="form-label"></label>
+        <input asp-for="Valem" class="form-control" placeholder="x^3/3 - x^2 - 3*x + 1" autocomplete="off" inputmode="none" />
+        <span asp-validation-for="Valem" class="text-danger"></span>
+        <div class="form-text">Vajuta väljale – klaviatuur avaneb all. Murd, aste ja juur on klaviatuuril.</div>
+    </div>
+    <button class="btn btn-success">Salvesta</button>
+    <a class="btn btn-link" asp-action="Index">Tühista</a>
+</form>
+<partial name="_Klaviatuur" />

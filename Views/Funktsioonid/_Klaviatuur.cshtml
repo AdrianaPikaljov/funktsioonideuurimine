@@ -1,0 +1,206 @@
+﻿<style>
+    #mkb {
+        display: none;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #1f1f1f;
+        color: #fff;
+        padding: 8px 8px 12px;
+        z-index: 1000;
+        box-shadow: 0 -4px 16px rgba(0,0,0,.4)
+    }
+
+        #mkb.open {
+            display: block
+        }
+
+    body.mkb-open {
+        padding-bottom: 340px
+    }
+
+    #mkb .eelvaade {
+        font-size: .85rem;
+        color: #aaa;
+        text-align: center;
+        margin-bottom: 6px;
+        min-height: 1.2em;
+        word-break: break-all
+    }
+
+    #mkb .tabs {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        margin-bottom: 6px
+    }
+
+    #mkb .tab {
+        cursor: pointer;
+        padding: 2px 6px;
+        border-bottom: 2px solid transparent;
+        color: #bbb
+    }
+
+        #mkb .tab.on {
+            color: #fff;
+            border-color: #fff
+        }
+
+    #mkb .paneel {
+        display: none;
+        justify-content: center;
+        gap: 10px
+    }
+
+        #mkb .paneel.on {
+            display: flex
+        }
+
+    #mkb .ruudustik {
+        display: grid;
+        grid-template-columns: repeat(4,64px);
+        gap: 5px
+    }
+
+    #mkb button {
+        height: 44px;
+        border: 0;
+        border-radius: 6px;
+        background: #3a3a3a;
+        color: #fff;
+        font-size: 1.05rem;
+        cursor: pointer
+    }
+
+        #mkb button:hover {
+            background: #4a4a4a
+        }
+
+        #mkb button:active {
+            background: #666
+        }
+
+    #mkb .abi {
+        position: absolute;
+        right: 12px;
+        top: 8px;
+        display: flex;
+        gap: 6px
+    }
+
+        #mkb .abi button {
+            height: 30px;
+            width: 36px;
+            font-size: .9rem;
+            background: transparent
+        }
+
+    @@media (max-width:600px) {
+        #mkb .ruudustik {
+            grid-template-columns: repeat(4,1fr)
+        }
+
+        #mkb .paneel {
+            flex-direction: column
+        }
+    }
+</style>
+
+<div id="mkb">
+    <div class="abi">
+        <button type="button" data-a="undo" title="Võta tagasi">↶</button>
+        <button type="button" data-a="redo" title="Tee uuesti">↷</button>
+        <button type="button" data-a="close" title="Sulge">✕</button>
+    </div>
+    <div class="eelvaade">Serverisse läheb: <span id="mkbEelvaade"></span></div>
+    <div class="tabs"><span class="tab on" data-tab="p1">123</span><span class="tab" data-tab="p2">f(x)</span></div>
+
+    <div class="paneel on" id="p1">
+        <div class="ruudustik">
+            <button type="button" data-t="x">𝑥</button>
+            <button type="button" data-t="^2">□²</button>
+            <button type="button" data-t="^(|)">□ⁿ</button>
+            <button type="button" data-t="((|)/())">▢⁄▢</button>
+            <button type="button" data-t="(">(</button>
+            <button type="button" data-t=")">)</button>
+            <button type="button" data-t="sqrt(|)">√▢</button>
+            <button type="button" data-t="(|)^(1/3)">∛▢</button>
+            <button type="button" data-t="pi">π</button>
+            <button type="button" data-t="exp(|)">e<sup>▢</sup></button>
+            <button type="button" data-a="left">‹</button>
+            <button type="button" data-a="right">›</button>
+            <button type="button" data-t="sin(|)">sin</button>
+            <button type="button" data-t="cos(|)">cos</button>
+            <button type="button" data-t="tan(|)">tan</button>
+            <button type="button" data-t="ln(|)">ln</button>
+        </div>
+        <div class="ruudustik">
+            <button type="button" data-t="7">7</button><button type="button" data-t="8">8</button><button type="button" data-t="9">9</button><button type="button" data-t="/">÷</button>
+            <button type="button" data-t="4">4</button><button type="button" data-t="5">5</button><button type="button" data-t="6">6</button><button type="button" data-t="*">×</button>
+            <button type="button" data-t="1">1</button><button type="button" data-t="2">2</button><button type="button" data-t="3">3</button><button type="button" data-t="-">−</button>
+            <button type="button" data-t="0">0</button><button type="button" data-t=".">.</button><button type="button" data-a="back">⌫</button><button type="button" data-t="+">+</button>
+        </div>
+    </div>
+
+    <div class="paneel" id="p2">
+        <div class="ruudustik">
+            <button type="button" data-t="sin(|)">sin</button><button type="button" data-t="cos(|)">cos</button><button type="button" data-t="tan(|)">tan</button><button type="button" data-t="ln(|)">ln</button>
+            <button type="button" data-t="asin(|)">asin</button><button type="button" data-t="acos(|)">acos</button><button type="button" data-t="atan(|)">atan</button><button type="button" data-t="exp(|)">exp</button>
+            <button type="button" data-t="sqrt(|)">√▢</button><button type="button" data-t="pi">π</button><button type="button" data-a="left">‹</button><button type="button" data-a="right">›</button>
+            <button type="button" data-a="clear">C</button><button type="button" data-a="back">⌫</button><button type="button" data-t="(">(</button><button type="button" data-t=")">)</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+      const inp = document.getElementById('Valem'), kb = document.getElementById('mkb'), eel = document.getElementById('mkbEelvaade');
+      let ajalugu = [inp.value], pos = 0;
+
+      function norm(s) {
+        return s.replace(/\s/g, '').replace(/,/g, '.').toLowerCase()
+          .replace(/^(f\(x\)|y)=/, '').replace(/(\d)(x|\()/g, '$1*$2').replace(/(x|\))(\d|x|\()/g, '$1*$2');
+      }
+      function uuenda() { eel.textContent = norm(inp.value); }
+      function salvesta() {
+        if (ajalugu[pos] !== inp.value) { ajalugu = ajalugu.slice(0, pos + 1); ajalugu.push(inp.value); pos = ajalugu.length - 1; }
+        uuenda();
+      }
+      function sisesta(t) {
+        const a = inp.selectionStart, b = inp.selectionEnd, eel_ = inp.value.slice(0, a);
+        // peidetud korrutamine: 2sin(x), )( , xpi jne
+        if (/^[a-z(]/.test(t) && /[\d)x]$/.test(eel_)) t = '*' + t;
+        const c = t.indexOf('|'), txt = t.replace('|', '');
+        inp.value = eel_ + txt + inp.value.slice(b);
+        const p = a + (c < 0 ? txt.length : c);
+        inp.setSelectionRange(p, p); inp.focus(); salvesta();
+      }
+      function toimingu(a) {
+        let p = inp.selectionStart;
+        if (a === 'back') { if (inp.selectionStart !== inp.selectionEnd) { inp.value = inp.value.slice(0, inp.selectionStart) + inp.value.slice(inp.selectionEnd); inp.setSelectionRange(p, p); } else if (p > 0) { inp.value = inp.value.slice(0, p - 1) + inp.value.slice(p); inp.setSelectionRange(p - 1, p - 1); } salvesta(); }
+        else if (a === 'left') inp.setSelectionRange(Math.max(0, p - 1), Math.max(0, p - 1));
+        else if (a === 'right') inp.setSelectionRange(p + 1, p + 1);
+        else if (a === 'clear') { inp.value = ''; salvesta(); }
+        else if (a === 'undo' && pos > 0) { inp.value = ajalugu[--pos]; uuenda(); }
+        else if (a === 'redo' && pos < ajalugu.length - 1) { inp.value = ajalugu[++pos]; uuenda(); }
+        else if (a === 'close') { ava(false); return; }
+        inp.focus();
+      }
+      function ava(jah) { kb.classList.toggle('open', jah); document.body.classList.toggle('mkb-open', jah); }
+
+      kb.addEventListener('mousedown', e => e.preventDefault());
+      kb.addEventListener('click', e => {
+        const nupp = e.target.closest('button'), tab = e.target.closest('.tab');
+        if (tab) {
+          document.querySelectorAll('#mkb .tab').forEach(x => x.classList.toggle('on', x === tab));
+          document.querySelectorAll('#mkb .paneel').forEach(x => x.classList.toggle('on', x.id === tab.dataset.tab));
+        } else if (nupp) { nupp.dataset.t !== undefined ? sisesta(nupp.dataset.t) : toimingu(nupp.dataset.a); }
+      });
+      inp.addEventListener('focus', () => ava(true));
+      inp.addEventListener('click', () => ava(true));
+      inp.addEventListener('input', salvesta);
+      uuenda();
+    })();
+</script>

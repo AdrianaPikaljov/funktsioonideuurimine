@@ -1,0 +1,22 @@
+@model List<FunktsiooniUurimine>
+<div class="d-flex justify-content-between mb-3">
+  <h2>Salvestatud funktsioonid</h2>
+  <a class="btn btn-primary" asp-action="Create">+ Uus funktsioon</a>
+</div>
+<table class="table table-striped align-middle">
+  <thead><tr><th>Valem</th><th>Tuletis</th><th>Nullkohad</th><th>Ekstreemumid</th><th></th></tr></thead>
+  <tbody>
+  @foreach (var x in Model) {
+    <tr>
+      <td><code>@x.Valem</code></td><td><code>@x.Tuletis</code></td><td>@x.Nullkohad</td><td>@x.Ekstreemumid</td>
+      <td class="text-nowrap">
+        <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@x.Id">Vaata</a>
+        <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@x.Id">Muuda</a>
+        <form asp-action="Delete" asp-route-id="@x.Id" method="post" class="d-inline" onsubmit="return confirm('Kustutan?')">
+          <button class="btn btn-sm btn-outline-danger">Kustuta</button>
+        </form>
+      </td>
+    </tr>
+  }
+  </tbody>
+</table>
