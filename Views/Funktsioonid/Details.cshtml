@@ -20,72 +20,99 @@
     <dt class="col-sm-3">Lõige y-teljega</dt>
     <dd class="col-sm-9">@Model.LoigeYTeljega</dd>
 </dl>
-<div class="row g-2 mb-3" style="max-width:420px">
-    <div class="col"><input id="xMin" type="number" class="form-control" value="-5" step="any" /></div>
-    <div class="col"><input id="xMax" type="number" class="form-control" value="5" step="any" /></div>
-    <div class="col-auto"><button class="btn btn-primary" onclick="joonesta()">Joonesta</button></div>
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <div class="row g-3 align-items-end mb-3">
+            <div class="col-6 col-md-3">
+                <label class="form-label" for="xMin">x min</label>
+                <input id="xMin" type="number" class="form-control" value="-5" step="any" />
+            </div>
+            <div class="col-6 col-md-3">
+                <label class="form-label" for="xMax">x max</label>
+                <input id="xMax" type="number" class="form-control" value="5" step="any" />
+            </div>
+            <div class="col-6 col-md-3">
+                <label class="form-label" for="samm">Samm</label>
+                <input id="samm" type="number" class="form-control" value="0.1" step="any" min="0.001" />
+            </div>
+            <div class="col-6 col-md-3"><button type="button" class="btn btn-primary w-100" onclick="joonesta()">Joonista</button></div>
+        </div>
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="suumi(1.25)" title="Suurenda">＋</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="suumi(0.8)" title="Vähenda">−</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="joonesta()">Lähtesta</button>
+            <span class="text-muted small ms-2">Hiireratas või näpuliigutus – suum, lohistamine – liigutamine</span>
+        </div>
+        <div style="position:relative;height:450px"><canvas id="funktsiooniGraafik"></canvas></div>
+    </div>
 </div>
-<canvas id="funktsiooniGraafik" width="600" height="400"></canvas>
+<p id="graafikuTeade" class="text-muted"></p>
 <a class="btn btn-link mt-3" asp-action="Index">← Tagasi</a>
 
 @if (ViewBag.Lahendus is List<FunktsiooniUurija.Services.Samm> sammud)
 {
-    <div class="d-flex align-items-center gap-2 mt-4 mb-3">
-        <h3 class="mb-0">📘 Lahenduskäik</h3>
-        <button type="button" class="btn btn-sm btn-outline-secondary ms-auto" id="lahenduseNupp">Peida / näita (Ctrl + ˇ)</button>
-    </div>
-    <div id="lahendus">
-        @for (int i = 0; i < sammud.Count; i++)
-        {
-            var samm = sammud[i];
-            <div class="card mb-3 shadow-sm">
-                <div class="card-header d-flex align-items-center gap-2 bg-white" style="cursor:pointer" title="Klõpsa, et kokku/lahti voltida">
-                    <span class="badge rounded-pill text-bg-primary">@(i + 1)</span>
-                    <span class="fw-semibold">@samm.Pealkiri</span>
-                    <span class="ms-auto text-muted small">▾</span>
-                </div>
-                <div class="card-body">
-                    @if (samm.Pealkiri == "Kokkuvõte")
-                    {
-                        <table class="table table-sm table-striped mb-0">
-                            <tbody>
-                                @foreach (var rida in samm.Read)
-                                {
-                                    var k = rida.IndexOf(": ");
-                                    <tr><th style="width:30%">@(k > 0 ? rida.Substring(0, k) : "")</th><td>@(k > 0 ? rida.Substring(k + 2) : rida)</td></tr>
-                                }
-                            </tbody>
-                        </table>
-                    }
-                    else
-                    {
-                        @foreach (var rida in samm.Read)
+    <div id="lahenduseKast">
+        <div class="d-flex align-items-center gap-2 mt-4 mb-3">
+            <h3 class="mb-0">📘 Lahenduskäik</h3>
+        </div>
+        <div id="lahendus">
+            @for (int i = 0; i < sammud.Count; i++)
+            {
+                var samm = sammud[i];
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-header d-flex align-items-center gap-2 bg-white" style="cursor:pointer" title="Klõpsa, et kokku/lahti voltida">
+                        <span class="badge rounded-pill text-bg-primary">@(i + 1)</span>
+                        <span class="fw-semibold">@samm.Pealkiri</span>
+                        <span class="ms-auto text-muted small">▾</span>
+                    </div>
+                    <div class="card-body">
+                        @if (samm.Pealkiri == "Kokkuvõte")
                         {
-                            if (rida.StartsWith("Tulemus: "))
+                            <table class="table table-sm table-striped mb-0">
+                                <tbody>
+                                    @foreach (var rida in samm.Read)
+                                    {
+                                        var k = rida.IndexOf(": ");
+                                        <tr><th style="width:30%">@(k > 0 ? rida.Substring(0, k) : "")</th><td>@(k > 0 ? rida.Substring(k + 2) : rida)</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            @foreach (var rida in samm.Read)
                             {
-                                <div class="alert alert-success py-2 px-3 my-2 fw-semibold">✔ @rida.Substring(9)</div>
-                            }
-                            else if (rida.StartsWith("Selgitus: "))
-                            {
-                                <div class="text-muted fst-italic mb-2">💡 @rida.Substring(10)</div>
-                            }
-                            else
-                            {
-                                <div class="font-monospace py-1 border-bottom">@rida</div>
+                                if (rida.StartsWith("Tulemus: "))
+                                {
+                                    <div class="alert alert-success py-2 px-3 my-2 fw-semibold">✔ @rida.Substring(9)</div>
+                                }
+                                else if (rida.StartsWith("Selgitus: "))
+                                {
+                                    <div class="text-muted fst-italic mb-2">💡 @rida.Substring(10)</div>
+                                }
+                                else
+                                {
+                                    <div class="font-monospace py-1 border-bottom">@rida</div>
+                                }
                             }
                         }
-                    }
+                    </div>
                 </div>
-            </div>
-        }
+            }
+        </div>
     </div>
+    <p id="lahenduseVihje" class="text-muted small mt-4" style="display:none">📘 Lahenduskäik on peidetud – vajuta Ctrl + ˇ, et näidata.</p>
     <script>
         (function () {
-          const kast = document.getElementById('lahendus'), nupp = document.getElementById('lahenduseNupp');
-          function vaheta() { kast.style.display = kast.style.display === 'none' ? '' : 'none'; }
-          nupp.addEventListener('click', vaheta);
+          const kast = document.getElementById('lahenduseKast'), vihje = document.getElementById('lahenduseVihje');
+          function vaheta() {
+            const peidetud = kast.style.display === 'none';
+            kast.style.display = peidetud ? '' : 'none';   // peidetud -> näita, näidatud -> peida
+            vihje.style.display = peidetud ? 'none' : '';
+          }
           document.addEventListener('keydown', function (e) {
-            if (e.ctrlKey && (e.code === 'Backquote' || e.key === 'ˇ' || e.key === 'Dead')) { e.preventDefault(); vaheta(); }
+            if (e.repeat) return;                            // hoitud klahv ei tohi edasi-tagasi lülitada
+            if (e.ctrlKey && (e.code === 'Backquote' || e.key === 'ˇ')) { e.preventDefault(); vaheta(); }
           });
           document.querySelectorAll('#lahendus .card-header').forEach(function (h) {
             h.addEventListener('click', function () {
@@ -98,22 +125,78 @@
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1"></script>
     <script>
-        let graafik;
+        let graafik, uuendusAeg;
+        const graafikuId = @Model.Id;
         const valem = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Valem));
+        const tuletis = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Tuletis));
+
+        function punktideks(d) {
+          return {
+            f:  d.x.map((x, i) => ({ x: x, y: d.y[i] })),
+            df: d.x.map((x, i) => ({ x: x, y: d.dy[i] }))
+          };
+        }
+
+        // Pärast suumi/liigutamist laadime nähtava piirkonna ümber uued punktid,
+        // et joon oleks ka lähedalt sile ja ei lõppeks poole peal.
+        function viiviUuendus(c) {
+          clearTimeout(uuendusAeg);
+          uuendusAeg = setTimeout(() => uuendaPunktid(c), 150);
+        }
+        async function uuendaPunktid(c) {
+          const a = c.scales.x.min, b = c.scales.x.max, w = b - a;
+          if (!(w > 0)) return;
+          const lo = a - w, hi = b + w, st = Math.max(w / 300, 0.0005);
+          const r = await fetch(`/Funktsioonid/Punktid/${graafikuId}?min=${lo.toFixed(6)}&max=${hi.toFixed(6)}&samm=${st.toFixed(6)}`);
+          if (!r.ok || c !== graafik) return;
+          const p = punktideks(await r.json());
+          c.data.datasets[0].data = p.f;
+          c.data.datasets[1].data = p.df;
+          c.update('none');
+        }
+        function suumi(k) { if (graafik) { graafik.zoom(k); viiviUuendus(graafik); } }
+
         async function joonesta() {
-          const min = document.getElementById('xMin').value, max = document.getElementById('xMax').value;
-          const r = await fetch(`/Funktsioonid/Punktid/@Model.Id?min=${min}&max=${max}&samm=0.1`);
+          const min = document.getElementById('xMin').value,
+                max = document.getElementById('xMax').value,
+                samm = document.getElementById('samm').value;
+          const r = await fetch(`/Funktsioonid/Punktid/${graafikuId}?min=${min}&max=${max}&samm=${samm}`);
           if (!r.ok) { alert('Vigane vahemik'); return; }
           const d = await r.json();
+          const p = punktideks(d);
+          document.getElementById('graafikuTeade').textContent =
+            d.y.includes(null) ? 'Funktsioon pole mõnes punktis määratud.' : 'Funktsioon on määratud iga x korral.';
           if (graafik) graafik.destroy();
           graafik = new Chart(document.getElementById('funktsiooniGraafik').getContext('2d'), {
-            type: 'line',
-            data: { labels: d.x, datasets: [
-              { label: 'f(x) = ' + valem, data: d.y, borderColor: 'blue', pointRadius: 0, fill: false, tension: 0.3 },
-              { label: "f'(x)", data: d.dy, borderColor: 'red', borderDash: [5, 5], pointRadius: 0, fill: false }
+            type: 'scatter',
+            data: { datasets: [
+              { label: 'f(x) = ' + valem, data: p.f, borderColor: '#2a48c8', borderWidth: 2.5,
+                pointRadius: 0, showLine: true, tension: 0.3, spanGaps: false },
+              { label: "f'(x) = " + tuletis, data: p.df, borderColor: '#a83228', borderWidth: 2,
+                borderDash: [6, 4], pointRadius: 0, showLine: true, spanGaps: false }
             ]},
-            options: { scales: { x: { title: { display: true, text: 'x' } }, y: { title: { display: true, text: 'y' } } } }
+            options: {
+              responsive: true, maintainAspectRatio: false, animation: false,
+              plugins: {
+                zoom: {
+                  zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'xy',
+                          onZoomComplete: ({ chart }) => viiviUuendus(chart) },
+                  pan:  { enabled: true, mode: 'xy', onPanComplete: ({ chart }) => viiviUuendus(chart) }
+                }
+              },
+              scales: {
+                x: { type: 'linear', min: Number(min), max: Number(max),
+                     title: { display: true, text: 'x' },
+                     grid: { color: c => c.tick.value === 0 ? '#000' : 'rgba(0,0,0,0.1)',
+                             lineWidth: c => c.tick.value === 0 ? 1.5 : 1 } },
+                y: { title: { display: true, text: 'y' },
+                     grid: { color: c => c.tick.value === 0 ? '#000' : 'rgba(0,0,0,0.1)',
+                             lineWidth: c => c.tick.value === 0 ? 1.5 : 1 } }
+              }
+            }
           });
         }
         joonesta();
