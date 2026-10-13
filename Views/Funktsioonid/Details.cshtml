@@ -168,6 +168,26 @@
 
         function punktideks(d) { return d.x.map((x, i) => ({ x: x, y: d.y[i] })); }
 
+        // Graafiku värvid sõltuvad teemast (must / valge).
+        function teemaVarv() {
+          const tume = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+          return tume
+            ? { joon: '#fff', tekst: '#fff', telg: '#fff', ruudustik: 'rgba(255,255,255,0.16)' }
+            : { joon: '#000', tekst: '#000', telg: '#000', ruudustik: 'rgba(0,0,0,0.1)' };
+        }
+        document.addEventListener('teema-muutus', () => {
+          if (!graafik) return;
+          const t = teemaVarv();
+          graafik.data.datasets[0].borderColor = t.joon;
+          for (const k of ['x', 'y']) {
+            const sk = graafik.options.scales[k];
+            sk.title.color = t.tekst;
+            sk.ticks.color = t.tekst;
+            sk.border = { color: t.ruudustik };
+          }
+          graafik.update('none');
+        });
+
         // Pärast suumi/liigutamist laadime nähtava piirkonna ümber uued punktid,
         // et joon oleks ka lähedalt sile ja ei lõppeks poole peal.
         function viiviUuendus(c) {
@@ -195,10 +215,11 @@
           document.getElementById('graafikuTeade').textContent =
             d.y.includes(null) ? 'Funktsioon pole mõnes punktis määratud.' : 'Funktsioon on määratud iga x korral.';
           if (graafik) graafik.destroy();
+          const t = teemaVarv();
           graafik = new Chart(document.getElementById('funktsiooniGraafik').getContext('2d'), {
             type: 'scatter',
             data: { datasets: [
-              { label: 'f(x) = ' + valem, data: punktideks(d), borderColor: '#4f46e5', borderWidth: 2.5,
+              { label: 'f(x) = ' + valem, data: punktideks(d), borderColor: t.joon, borderWidth: 2.5,
                 pointRadius: 0, showLine: true, tension: 0.3, spanGaps: false }
             ]},
             options: {
@@ -213,11 +234,15 @@
               },
               scales: {
                 x: { type: 'linear', min: Number(min), max: Number(max),
-                     title: { display: true, text: 'x' },
-                     grid: { color: c => c.tick.value === 0 ? '#000' : 'rgba(0,0,0,0.1)',
+                     title: { display: true, text: 'x', color: t.tekst },
+                     ticks: { color: t.tekst },
+                     border: { color: t.ruudustik },
+                     grid: { color: c => c.tick.value === 0 ? teemaVarv().telg : teemaVarv().ruudustik,
                              lineWidth: c => c.tick.value === 0 ? 1.5 : 1 } },
-                y: { title: { display: true, text: 'y' },
-                     grid: { color: c => c.tick.value === 0 ? '#000' : 'rgba(0,0,0,0.1)',
+                y: { title: { display: true, text: 'y', color: t.tekst },
+                     ticks: { color: t.tekst },
+                     border: { color: t.ruudustik },
+                     grid: { color: c => c.tick.value === 0 ? teemaVarv().telg : teemaVarv().ruudustik,
                              lineWidth: c => c.tick.value === 0 ? 1.5 : 1 } }
               }
             }

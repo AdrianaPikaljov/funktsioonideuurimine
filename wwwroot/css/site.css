@@ -1,48 +1,97 @@
-:root {
-  --akt: #4f46e5;
-  --akt-tume: #3730a3;
-  --akt-hele: #eef2ff;
-  --taust: #f6f7fb;
-  --tekst: #1e2330;
-  --hall: #6b7280;
-  --joon: #e5e7eb;
+:root { color-scheme: light; }
+
+/* ---------- teemad: valge ja must (ainult must, valge ja hall) ---------- */
+[data-bs-theme="light"] {
+  color-scheme: light;
+  --akt: #000;
+  --akt-tume: #000;
+  --akt-hele: #f2f2f2;
+  --akt-hover: #333;
+  --kontrast: #fff;
+  --taust: #fff;
+  --kaart: #fff;
+  --tekst: #000;
+  --hall: #595959;
+  --joon: #dcdcdc;
+  --joon-tume: #b3b3b3;
+  --vari: rgba(0, 0, 0, .07);
+  --bs-body-bg: #fff; --bs-body-bg-rgb: 255, 255, 255;
+  --bs-body-color: #000; --bs-body-color-rgb: 0, 0, 0;
+  --bs-emphasis-color: #000; --bs-emphasis-color-rgb: 0, 0, 0;
+  --bs-secondary-color: #595959; --bs-secondary-color-rgb: 89, 89, 89;
+  --bs-secondary-bg: #f2f2f2; --bs-tertiary-bg: #f7f7f7;
+  --bs-border-color: #cfcfcf;
 }
+[data-bs-theme="dark"] {
+  color-scheme: dark;
+  --akt: #fff;
+  --akt-tume: #fff;
+  --akt-hele: #1c1c1c;
+  --akt-hover: #d0d0d0;
+  --kontrast: #000;
+  --taust: #000;
+  --kaart: #0a0a0a;
+  --tekst: #fff;
+  --hall: #a6a6a6;
+  --joon: #2d2d2d;
+  --joon-tume: #5a5a5a;
+  --vari: rgba(0, 0, 0, .7);
+  --bs-body-bg: #000; --bs-body-bg-rgb: 0, 0, 0;
+  --bs-body-color: #fff; --bs-body-color-rgb: 255, 255, 255;
+  --bs-emphasis-color: #fff; --bs-emphasis-color-rgb: 255, 255, 255;
+  --bs-secondary-color: #a6a6a6; --bs-secondary-color-rgb: 166, 166, 166;
+  --bs-secondary-bg: #1c1c1c; --bs-tertiary-bg: #121212;
+  --bs-border-color: #333;
+}
+/* Bootstrapi sinine/punane/roheline -> must-valge-hall */
+[data-bs-theme="light"], [data-bs-theme="dark"] {
+  --bs-primary: var(--tekst); --bs-primary-rgb: var(--bs-body-color-rgb);
+  --bs-link-color: var(--tekst); --bs-link-color-rgb: var(--bs-body-color-rgb);
+  --bs-link-hover-color: var(--hall); --bs-link-hover-color-rgb: var(--bs-secondary-color-rgb);
+  --bs-danger: var(--tekst); --bs-danger-rgb: var(--bs-body-color-rgb);
+  --bs-success: var(--tekst); --bs-success-rgb: var(--bs-body-color-rgb);
+  --bs-success-text-emphasis: var(--tekst);
+  --bs-success-bg-subtle: var(--akt-hele);
+  --bs-success-border-subtle: var(--joon-tume);
+  --bs-focus-ring-color: rgba(128, 128, 128, .35);
+}
+
 body { background: var(--taust); color: var(--tekst); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
 code { color: var(--akt-tume); background: var(--akt-hele); padding: .1rem .4rem; border-radius: .35rem; font-size: .9em; }
 
 /* ---------- navigeerimine ---------- */
-.app-nav { background: #fff; border-bottom: 1px solid var(--joon); box-shadow: 0 1px 8px rgba(30, 35, 48, .05); }
+.app-nav { background: var(--kaart); border-bottom: 1px solid var(--joon); box-shadow: 0 1px 8px var(--vari); }
 .app-nav .navbar-brand { font-weight: 700; color: var(--akt-tume); letter-spacing: -.01em; }
 .app-nav .nav-link { color: var(--hall); font-weight: 500; border-radius: .6rem; padding: .45rem .9rem; }
-.app-nav .nav-link:hover { color: var(--tekst); background: var(--taust); }
+.app-nav .nav-link:hover { color: var(--tekst); background: var(--akt-hele); }
 .app-nav .nav-link.active { color: var(--akt-tume); background: var(--akt-hele); }
-.app-nav .arv { font-size: .72rem; background: var(--akt); color: #fff; border-radius: 999px; padding: .05rem .45rem; margin-left: .25rem; vertical-align: middle; }
+.app-nav .arv { font-size: .72rem; background: var(--akt); color: var(--kontrast); border-radius: 999px; padding: .05rem .45rem; margin-left: .25rem; vertical-align: middle; }
 
 /* ---------- kaardid ---------- */
-.kaart { background: #fff; border: 1px solid var(--joon); border-radius: 1rem; box-shadow: 0 2px 10px rgba(30, 35, 48, .04); }
+.kaart { background: var(--kaart); border: 1px solid var(--joon); border-radius: 1rem; box-shadow: 0 2px 10px var(--vari); }
 .kaart-pea { padding: 1rem 1.25rem; border-bottom: 1px solid var(--joon); font-weight: 600; }
 .kaart-sisu { padding: 1.25rem; }
-.btn-akt { background: var(--akt); border-color: var(--akt); color: #fff; }
-.btn-akt:hover, .btn-akt:focus { background: var(--akt-tume); border-color: var(--akt-tume); color: #fff; }
+.btn-akt { background: var(--akt); border-color: var(--akt); color: var(--kontrast); }
+.btn-akt:hover, .btn-akt:focus { background: var(--akt-hover); border-color: var(--akt-hover); color: var(--kontrast); }
 .btn-outline-akt { color: var(--akt); border-color: var(--akt); }
-.btn-outline-akt:hover { background: var(--akt); border-color: var(--akt); color: #fff; }
+.btn-outline-akt:hover { background: var(--akt); border-color: var(--akt); color: var(--kontrast); }
 
 /* ---------- salvestatud funktsioonide nimekiri ---------- */
 .fn-kaart { transition: transform .12s ease, box-shadow .12s ease; height: 100%; display: flex; flex-direction: column; }
-.fn-kaart:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(30, 35, 48, .09); }
+.fn-kaart:hover { transform: translateY(-2px); box-shadow: 0 8px 22px var(--vari); border-color: var(--joon-tume); }
 .fn-valem { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 1.15rem; font-weight: 600; word-break: break-all; color: var(--tekst); text-decoration: none; }
 .fn-valem:hover { color: var(--akt); }
 .chip { display: inline-block; font-size: .72rem; background: var(--akt-hele); color: var(--akt-tume); border-radius: 999px; padding: .15rem .6rem; margin: 0 .25rem .25rem 0; }
-.tahe { border: 0; background: transparent; font-size: 1.4rem; line-height: 1; color: #c7cad1; padding: 0 .2rem; cursor: pointer; }
-.tahe:hover { color: #f59e0b; }
-.tahe.on { color: #f59e0b; }
+.tahe { border: 0; background: transparent; font-size: 1.4rem; line-height: 1; color: var(--joon-tume); padding: 0 .2rem; cursor: pointer; }
+.tahe:hover { color: var(--tekst); }
+.tahe.on { color: var(--tekst); }
 .fn-tulemus { font-size: .88rem; color: var(--hall); }
 .fn-tulemus b { color: var(--tekst); font-weight: 600; }
 
 /* ---------- valikute ruudustik (vorm) ---------- */
 .valikud { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: .6rem; }
-.valik { position: relative; display: flex; gap: .7rem; align-items: flex-start; border: 1.5px solid var(--joon); border-radius: .8rem; padding: .7rem .9rem; cursor: pointer; background: #fff; transition: border-color .12s, background .12s; }
-.valik:hover { border-color: #c7d2fe; }
+.valik { position: relative; display: flex; gap: .7rem; align-items: flex-start; border: 1.5px solid var(--joon); border-radius: .8rem; padding: .7rem .9rem; cursor: pointer; background: var(--kaart); transition: border-color .12s, background .12s; }
+.valik:hover { border-color: var(--joon-tume); }
 .valik:has(input:checked) { border-color: var(--akt); background: var(--akt-hele); }
 .valik input { margin-top: .25rem; accent-color: var(--akt); width: 1.1rem; height: 1.1rem; flex: none; }
 .valik .nimi { font-weight: 600; line-height: 1.2; }
@@ -55,10 +104,10 @@ code { color: var(--akt-tume); background: var(--akt-hele); padding: .1rem .4rem
 .tulemused .vaartus { text-align: right; font-weight: 600; word-break: break-word; }
 
 /* ---------- lahenduskäik ---------- */
-.samm-kaart { border: 1px solid var(--joon); border-radius: .9rem; background: #fff; margin-bottom: .9rem; overflow: hidden; }
+.samm-kaart { border: 1px solid var(--joon); border-radius: .9rem; background: var(--kaart); margin-bottom: .9rem; overflow: hidden; }
 .samm-pea { display: flex; align-items: center; gap: .6rem; padding: .75rem 1rem; cursor: pointer; user-select: none; }
-.samm-pea:hover { background: var(--taust); }
-.samm-pea .nr { background: var(--akt); color: #fff; border-radius: 999px; min-width: 1.6rem; height: 1.6rem; display: inline-flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 600; }
+.samm-pea:hover { background: var(--akt-hele); }
+.samm-pea .nr { background: var(--akt); color: var(--kontrast); border-radius: 999px; min-width: 1.6rem; height: 1.6rem; display: inline-flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 600; }
 .samm-pea .nool { margin-left: auto; color: var(--hall); transition: transform .15s; }
 .samm-kaart.kokku .nool { transform: rotate(-90deg); }
 .samm-kaart.kokku .samm-keha { display: none; }
@@ -67,3 +116,35 @@ code { color: var(--akt-tume); background: var(--akt-hele); padding: .1rem .4rem
 /* ---------- graafik ---------- */
 .graafik-kast { position: relative; height: 460px; }
 @media (max-width: 575px) { .graafik-kast { height: 340px; } }
+
+
+/* ---------- Bootstrapi komponendid must-valges ---------- */
+.btn-outline-secondary, .btn-outline-danger {
+  --bs-btn-color: var(--tekst);
+  --bs-btn-border-color: var(--joon-tume);
+  --bs-btn-hover-color: var(--kontrast);
+  --bs-btn-hover-bg: var(--akt);
+  --bs-btn-hover-border-color: var(--akt);
+  --bs-btn-active-color: var(--kontrast);
+  --bs-btn-active-bg: var(--akt-hover);
+  --bs-btn-active-border-color: var(--akt-hover);
+  --bs-btn-focus-shadow-rgb: 128, 128, 128;
+  --bs-btn-disabled-color: var(--hall);
+  --bs-btn-disabled-border-color: var(--joon);
+}
+.btn-outline-akt { --bs-btn-focus-shadow-rgb: 128, 128, 128; }
+.btn-akt:focus-visible, .btn-outline-akt:focus-visible { box-shadow: 0 0 0 .25rem rgba(128, 128, 128, .35); }
+.form-control:focus, .form-select:focus { border-color: var(--tekst); box-shadow: 0 0 0 .25rem rgba(128, 128, 128, .3); }
+.form-check-input:checked { background-color: var(--akt); border-color: var(--akt); }
+.text-danger { font-weight: 600; }
+.alert-success { --bs-alert-border-color: var(--joon-tume); border-left: 4px solid var(--tekst); }
+.navbar-toggler { --bs-navbar-toggler-border-color: var(--joon-tume); }
+.navbar-toggler:focus { box-shadow: 0 0 0 .2rem rgba(128, 128, 128, .35); }
+[data-bs-theme="dark"] .navbar-toggler-icon { filter: invert(1); }
+[data-bs-theme="dark"] #mkb { background: #111; border-top: 1px solid #444; }
+
+/* emoji -> mustvalged */
+.app-nav, h2, .btn, .alert, .kaart-pea, .tahe, .form-text, .text-muted, .samm-pea { filter: grayscale(1); }
+
+/* ---------- teemanupp ---------- */
+[data-bs-theme="light"] .teema-valge, [data-bs-theme="dark"] .teema-must { display: none; }
