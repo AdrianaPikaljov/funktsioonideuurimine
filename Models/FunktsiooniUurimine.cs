@@ -37,6 +37,12 @@ public class FunktsiooniUurimine
     [Display(Name = "Lõige y-teljega")]
     public string LoigeYTeljega { get; set; } = string.Empty;
 
+    /// <summary>Komaga eraldatud valitud arvutuste võtmed (vt Valikud). Tühi = kõik.</summary>
+    public string Valik { get; set; } = string.Empty;
+
+    [Display(Name = "Lemmik")]
+    public bool Lemmik { get; set; }
+
     [Display(Name = "Loodud")]
     public DateTime LuodudAeg { get; set; } = DateTime.UtcNow;
 }

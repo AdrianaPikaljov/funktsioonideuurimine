@@ -1,22 +1,76 @@
+@using FunktsiooniUurija.Services
 @model List<FunktsiooniUurimine>
-<div class="d-flex justify-content-between mb-3">
-  <h2>Salvestatud funktsioonid</h2>
-  <a class="btn btn-primary" asp-action="Create">+ Uus funktsioon</a>
+@{
+    bool lemmikud = ViewBag.Lemmikud is true;
+    ViewData["Title"] = lemmikud ? "Lemmikud" : "Salvestatud funktsioonid";
+}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h2 class="mb-0">@(lemmikud ? "⭐ Lemmikud" : "💾 Salvestatud funktsioonid")</h2>
+    <div class="d-flex gap-2">
+        <input id="otsing" type="search" class="form-control" style="min-width:220px" placeholder="Otsi valemit…" autocomplete="off" />
+        <a class="btn btn-akt text-nowrap" asp-action="Create">+ Uus</a>
+    </div>
 </div>
-<table class="table table-striped align-middle">
-  <thead><tr><th>Valem</th><th>Tuletis</th><th>Nullkohad</th><th>Ekstreemumid</th><th></th></tr></thead>
-  <tbody>
-  @foreach (var x in Model) {
-    <tr>
-      <td><code>@x.Valem</code></td><td><code>@x.Tuletis</code></td><td>@x.Nullkohad</td><td>@x.Ekstreemumid</td>
-      <td class="text-nowrap">
-        <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@x.Id">Vaata</a>
-        <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@x.Id">Muuda</a>
-        <form asp-action="Delete" asp-route-id="@x.Id" method="post" class="d-inline" onsubmit="return confirm('Kustutan?')">
-          <button class="btn btn-sm btn-outline-danger">Kustuta</button>
-        </form>
-      </td>
-    </tr>
-  }
-  </tbody>
-</table>
+
+@if (Model.Count == 0)
+{
+    <div class="kaart kaart-sisu text-center text-muted py-5">
+        @if (lemmikud) { <p class="mb-2">Lemmikuid veel pole. Märgi funktsioon tärniga ⭐, et see siia ilmuks.</p> }
+        else { <p class="mb-2">Salvestatud funktsioone pole.</p> }
+        <a class="btn btn-akt" asp-action="Create">Uuri esimest funktsiooni</a>
+    </div>
+}
+else
+{
+    <div class="row g-3" id="nimekiri">
+    @foreach (var x in Model)
+    {
+        var valitud = Valikud.Parsi(x.Valik);
+        <div class="col-12 col-md-6 col-lg-4 fn-ese" data-valem="@x.Valem.ToLowerInvariant()">
+            <div class="kaart fn-kaart">
+                <div class="kaart-sisu pb-2">
+                    <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                        <a class="fn-valem" asp-action="Details" asp-route-id="@x.Id">f(x) = @x.Valem</a>
+                        <form asp-action="Lemmik" asp-route-id="@x.Id" asp-route-tagasi="@(Context.Request.Path + Context.Request.QueryString)" method="post">
+                            <button class="tahe @(x.Lemmik ? "on" : "")" title="@(x.Lemmik ? "Eemalda lemmikutest" : "Lisa lemmikutesse")">@(x.Lemmik ? "★" : "☆")</button>
+                        </form>
+                    </div>
+                    <div class="mb-2">
+                        @foreach (var s in Valikud.Koik.Where(s => valitud.Contains(s.Voti)))
+                        {
+                            <span class="chip">@s.Nimi</span>
+                        }
+                    </div>
+                    <div class="fn-tulemus">
+                        @if (!string.IsNullOrEmpty(x.Nullkohad)) { <div><b>Nullkohad:</b> @x.Nullkohad</div> }
+                        @if (!string.IsNullOrEmpty(x.Ekstreemumid)) { <div><b>Ekstreemumid:</b> @x.Ekstreemumid</div> }
+                        @if (!string.IsNullOrEmpty(x.Tuletis) && string.IsNullOrEmpty(x.Nullkohad) && string.IsNullOrEmpty(x.Ekstreemumid)) { <div><b>f'(x):</b> <code>@x.Tuletis</code></div> }
+                    </div>
+                </div>
+                <div class="kaart-sisu pt-2 mt-auto d-flex gap-2 flex-wrap">
+                    <a class="btn btn-sm btn-akt" asp-action="Details" asp-route-id="@x.Id">Vaata</a>
+                    <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@x.Id">Muuda</a>
+                    <form asp-action="Delete" asp-route-id="@x.Id" method="post" class="ms-auto" onsubmit="return confirm('Kustutan selle funktsiooni?')">
+                        <button class="btn btn-sm btn-outline-danger">Kustuta</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+    </div>
+    <p id="otsingTuhi" class="text-muted text-center py-4" style="display:none">Midagi ei leitud.</p>
+}
+
+@section Scripts {
+    <script>
+        (function () {
+          const o = document.getElementById('otsing'); if (!o) return;
+          const ese = [...document.querySelectorAll('.fn-ese')], tuhi = document.getElementById('otsingTuhi');
+          o.addEventListener('input', function () {
+            const q = o.value.replace(/\s/g, '').toLowerCase(); let n = 0;
+            ese.forEach(e => { const ok = e.dataset.valem.replace(/\s/g, '').includes(q); e.style.display = ok ? '' : 'none'; if (ok) n++; });
+            if (tuhi) tuhi.style.display = n ? 'none' : '';
+          });
+        })();
+    </script>
+}

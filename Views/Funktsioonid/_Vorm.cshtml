@@ -1,13 +1,57 @@
+@using FunktsiooniUurija.Services
 @model FunktsiooniUurimine
-<form method="post">
+@{
+    var valitud = string.IsNullOrEmpty(Model.Valik) ? new HashSet<string>() : Valikud.Parsi(Model.Valik);
+}
+<form method="post" class="kaart kaart-sisu" id="uurimisVorm">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="mb-3">
-        <label asp-for="Valem" class="form-label"></label>
-        <input asp-for="Valem" class="form-control" placeholder="x^3/3 - x^2 - 3*x + 1" autocomplete="off" inputmode="none" />
+    <div class="mb-4">
+        <label asp-for="Valem" class="form-label fw-semibold"></label>
+        <input asp-for="Valem" class="form-control form-control-lg font-monospace" placeholder="x^3/3 - x^2 - 3*x + 1" autocomplete="off" inputmode="none" />
         <span asp-validation-for="Valem" class="text-danger"></span>
         <div class="form-text">Vajuta väljale – klaviatuur avaneb all. Murd, aste ja juur on klaviatuuril.</div>
     </div>
-    <button class="btn btn-success">Salvesta</button>
+
+    <div class="d-flex flex-wrap align-items-baseline justify-content-between mb-2">
+        <label class="form-label fw-semibold mb-0">Mida arvutada?</label>
+        <span class="small">
+            <a href="#" id="valiKoik">Vali kõik</a> · <a href="#" id="tuhistaKoik">Tühista kõik</a>
+        </span>
+    </div>
+    <div class="valikud mb-1">
+        @foreach (var s in Valikud.Koik)
+        {
+            <label class="valik">
+                <input type="checkbox" name="valikud" value="@s.Voti" data-eeldab="@string.Join(",", s.Eeldab)" @(valitud.Contains(s.Voti) ? "checked" : "") />
+                <span>
+                    <span class="nimi d-block">@s.Nimi</span>
+                    <span class="kirj">@s.Kirjeldus</span>
+                </span>
+            </label>
+        }
+    </div>
+    @if (ViewData.ModelState.TryGetValue("valikud", out var ve) && ve.Errors.Count > 0)
+    {
+        <div class="text-danger small mt-1">@ve.Errors[0].ErrorMessage</div>
+    }
+    <div class="form-text mb-4">Kui valid midagi, mis vajab eeltööd (nt ekstreemumid), lisatakse vajalikud sammud (kriitilised punktid, tuletis) automaatselt.</div>
+
+    <button class="btn btn-akt px-4">Salvesta ja uuri</button>
     <a class="btn btn-link" asp-action="Index">Tühista</a>
 </form>
 <partial name="_Klaviatuur" />
+
+<script>
+    (function () {
+      const kastid = [...document.querySelectorAll('input[name="valikud"]')];
+      const voti = k => k.value, leia = v => kastid.find(k => voti(k) === v);
+      function eeldused(k) { return k.dataset.eeldab ? k.dataset.eeldab.split(',').filter(Boolean) : []; }
+      // märgi eeldused ära
+      function markeeri(k) { eeldused(k).forEach(v => { const e = leia(v); if (e && !e.checked) { e.checked = true; markeeri(e); } }); }
+      // eemalda kõik, mis sellest sõltuvad
+      function eemalda(k) { kastid.forEach(t => { if (t.checked && eeldused(t).includes(voti(k))) { t.checked = false; eemalda(t); } }); }
+      kastid.forEach(k => k.addEventListener('change', () => k.checked ? markeeri(k) : eemalda(k)));
+      document.getElementById('valiKoik').addEventListener('click', e => { e.preventDefault(); kastid.forEach(k => k.checked = true); });
+      document.getElementById('tuhistaKoik').addEventListener('click', e => { e.preventDefault(); kastid.forEach(k => k.checked = false); });
+    })();
+</script>

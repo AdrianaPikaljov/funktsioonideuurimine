@@ -1,74 +1,100 @@
+@using FunktsiooniUurija.Services
 @model FunktsiooniUurimine
-<h2>f(x) = <code>@Model.Valem</code></h2>
-<dl class="row">
-    <dt class="col-sm-3">Määramispiirkond</dt>
-    <dd class="col-sm-9">@Model.Maaramispiirkond</dd>
-    <dt class="col-sm-3">Nullkohad</dt>
-    <dd class="col-sm-9">@Model.Nullkohad</dd>
-    <dt class="col-sm-3">Tuletis f'(x)</dt>
-    <dd class="col-sm-9"><code>@Model.Tuletis</code></dd>
-    <dt class="col-sm-3">Kriitilised punktid</dt>
-    <dd class="col-sm-9">@Model.KriitilisedPunktid</dd>
-    <dt class="col-sm-3">Ekstreemumid</dt>
-    <dd class="col-sm-9">@Model.Ekstreemumid</dd>
-    <dt class="col-sm-3">Kasvab</dt>
-    <dd class="col-sm-9">@Model.Kasvamine</dd>
-    <dt class="col-sm-3">Kahaneb</dt>
-    <dd class="col-sm-9">@Model.Kahanemine</dd>
-    <dt class="col-sm-3">Käänupunkt</dt>
-    <dd class="col-sm-9">@Model.Kaanupunkt</dd>
-    <dt class="col-sm-3">Lõige y-teljega</dt>
-    <dd class="col-sm-9">@Model.LoigeYTeljega</dd>
-</dl>
-<div class="card shadow-sm mb-3">
-    <div class="card-body">
-        <div class="row g-3 align-items-end mb-3">
-            <div class="col-6 col-md-3">
-                <label class="form-label" for="xMin">x min</label>
-                <input id="xMin" type="number" class="form-control" value="-5" step="any" />
-            </div>
-            <div class="col-6 col-md-3">
-                <label class="form-label" for="xMax">x max</label>
-                <input id="xMax" type="number" class="form-control" value="5" step="any" />
-            </div>
-            <div class="col-6 col-md-3">
-                <label class="form-label" for="samm">Samm</label>
-                <input id="samm" type="number" class="form-control" value="0.1" step="any" min="0.001" />
-            </div>
-            <div class="col-6 col-md-3"><button type="button" class="btn btn-primary w-100" onclick="joonesta()">Joonista</button></div>
-        </div>
-        <div class="d-flex align-items-center gap-2 mb-2">
-            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="suumi(1.25)" title="Suurenda">＋</button>
-            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="suumi(0.8)" title="Vähenda">−</button>
-            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="joonesta()">Lähtesta</button>
-            <span class="text-muted small ms-2">Hiireratas või näpuliigutus – suum, lohistamine – liigutamine</span>
-        </div>
-        <div style="position:relative;height:450px"><canvas id="funktsiooniGraafik"></canvas></div>
+@{
+    ViewData["Title"] = "f(x) = " + Model.Valem;
+    var valitud = Valikud.Parsi(Model.Valik);
+    // (võti, silt, väärtus, kood?)
+    var read = new List<(string silt, string vaartus, bool kood)>();
+    void Lisa(string voti, string silt, string vaartus, bool kood = false)
+    {
+        if (valitud.Contains(voti) && !string.IsNullOrEmpty(vaartus)) read.Add((silt, vaartus, kood));
+    }
+    Lisa("maar", "Määramispiirkond", Model.Maaramispiirkond);
+    Lisa("tuletis", "Tuletis f'(x)", Model.Tuletis, true);
+    Lisa("krit", "Kriitilised punktid", Model.KriitilisedPunktid);
+    Lisa("kasv", "Kasvab", Model.Kasvamine);
+    Lisa("kasv", "Kahaneb", Model.Kahanemine);
+    Lisa("ekst", "Ekstreemumid", Model.Ekstreemumid);
+    Lisa("kaan", "Käänupunktid", Model.Kaanupunkt);
+    Lisa("yloige", "Lõige y-teljega", Model.LoigeYTeljega);
+    Lisa("null", "Nullkohad", Model.Nullkohad);
+}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h2 class="mb-0 font-monospace" style="word-break:break-all">f(x) = @Model.Valem</h2>
+    <div class="d-flex gap-2 align-items-center">
+        <form asp-action="Lemmik" asp-route-id="@Model.Id" asp-route-tagasi="@Url.Action("Details", new { id = Model.Id })" method="post">
+            <button class="btn btn-outline-secondary btn-sm" title="@(Model.Lemmik ? "Eemalda lemmikutest" : "Lisa lemmikutesse")">@(Model.Lemmik ? "★ Lemmik" : "☆ Lisa lemmikuks")</button>
+        </form>
+        <a class="btn btn-outline-secondary btn-sm" asp-action="Edit" asp-route-id="@Model.Id">Muuda</a>
     </div>
 </div>
-<p id="graafikuTeade" class="text-muted"></p>
-<a class="btn btn-link mt-3" asp-action="Index">← Tagasi</a>
 
-@if (ViewBag.Lahendus is List<FunktsiooniUurija.Services.Samm> sammud)
-{
-    <div id="lahenduseKast">
-        <div class="d-flex align-items-center gap-2 mt-4 mb-3">
-            <h3 class="mb-0">📘 Lahenduskäik</h3>
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="kaart">
+            <div class="kaart-sisu">
+                <div class="row g-2 align-items-end mb-3">
+                    <div class="col-4"><label class="form-label small mb-1" for="xMin">x min</label><input id="xMin" type="number" class="form-control form-control-sm" value="-5" step="any" /></div>
+                    <div class="col-4"><label class="form-label small mb-1" for="xMax">x max</label><input id="xMax" type="number" class="form-control form-control-sm" value="5" step="any" /></div>
+                    <div class="col-4"><label class="form-label small mb-1" for="samm">Samm</label><input id="samm" type="number" class="form-control form-control-sm" value="0.1" step="any" min="0.001" /></div>
+                </div>
+                <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                    <button type="button" class="btn btn-akt btn-sm" onclick="joonesta()">Joonista</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="suumi(1.25)" title="Suurenda">＋</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="suumi(0.8)" title="Vähenda">−</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="joonesta()">Lähtesta</button>
+                    <span class="text-muted small ms-1">Hiireratas / näpuliigutus – suum, lohistamine – liigutamine</span>
+                </div>
+                <div class="graafik-kast"><canvas id="funktsiooniGraafik"></canvas></div>
+                <p id="graafikuTeade" class="text-muted small mb-0 mt-2"></p>
+            </div>
         </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="kaart">
+            <div class="kaart-pea">Tulemused</div>
+            <div class="kaart-sisu tulemused py-2">
+                @if (read.Count == 0)
+                {
+                    <p class="text-muted my-3">Valitud arvutuste tulemused on lahenduskäigus.</p>
+                }
+                @foreach (var (silt, vaartus, kood) in read)
+                {
+                    <div class="rida">
+                        <span class="silt">@silt</span>
+                        @if (kood) { <span class="vaartus"><code>@vaartus</code></span> }
+                        else { <span class="vaartus">@vaartus</span> }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (ViewBag.Lahendus is List<Samm> sammud)
+{
+    <div class="d-flex align-items-center gap-3 mt-4 mb-3">
+        <h3 class="mb-0">📘 Lahenduskäik</h3>
+        <button type="button" id="lahendusNupp" class="btn btn-outline-akt btn-sm" aria-expanded="false" aria-controls="lahenduseKast">Näita lahenduskäiku</button>
+        <button type="button" id="voltimisNupp" class="btn btn-link btn-sm text-decoration-none" style="display:none">Voldi kõik kokku</button>
+    </div>
+    <p id="lahenduseVihje" class="text-muted small">Lahenduskäik on peidetud. Vajuta nuppu (või Ctrl + ˇ), et seda näha.</p>
+    <div id="lahenduseKast" style="display:none">
         <div id="lahendus">
             @for (int i = 0; i < sammud.Count; i++)
             {
                 var samm = sammud[i];
-                <div class="card mb-3 shadow-sm">
-                    <div class="card-header d-flex align-items-center gap-2 bg-white" style="cursor:pointer" title="Klõpsa, et kokku/lahti voltida">
-                        <span class="badge rounded-pill text-bg-primary">@(i + 1)</span>
+                <div class="samm-kaart">
+                    <div class="samm-pea" title="Klõpsa, et kokku/lahti voltida">
+                        <span class="nr">@(i + 1)</span>
                         <span class="fw-semibold">@samm.Pealkiri</span>
-                        <span class="ms-auto text-muted small">▾</span>
+                        <span class="nool">▾</span>
                     </div>
-                    <div class="card-body">
+                    <div class="samm-keha">
                         @if (samm.Pealkiri == "Kokkuvõte")
                         {
-                            <table class="table table-sm table-striped mb-0">
+                            <table class="table table-sm table-striped mb-0 mt-2">
                                 <tbody>
                                     @foreach (var rida in samm.Read)
                                     {
@@ -88,7 +114,7 @@
                                 }
                                 else if (rida.StartsWith("Selgitus: "))
                                 {
-                                    <div class="text-muted fst-italic mb-2">💡 @rida.Substring(10)</div>
+                                    <div class="text-muted fst-italic my-2">💡 @rida.Substring(10)</div>
                                 }
                                 else
                                 {
@@ -101,24 +127,32 @@
             }
         </div>
     </div>
-    <p id="lahenduseVihje" class="text-muted small mt-4" style="display:none">📘 Lahenduskäik on peidetud – vajuta Ctrl + ˇ, et näidata.</p>
     <script>
         (function () {
-          const kast = document.getElementById('lahenduseKast'), vihje = document.getElementById('lahenduseVihje');
-          function vaheta() {
-            const peidetud = kast.style.display === 'none';
-            kast.style.display = peidetud ? '' : 'none';   // peidetud -> näita, näidatud -> peida
-            vihje.style.display = peidetud ? 'none' : '';
+          const kast = document.getElementById('lahenduseKast'), vihje = document.getElementById('lahenduseVihje'),
+                nupp = document.getElementById('lahendusNupp'), volt = document.getElementById('voltimisNupp');
+          function naita(jah) {                              // vaikimisi peidetud
+            kast.style.display = jah ? '' : 'none';
+            vihje.style.display = jah ? 'none' : '';
+            volt.style.display = jah ? '' : 'none';
+            nupp.textContent = jah ? 'Peida lahenduskäik' : 'Näita lahenduskäiku';
+            nupp.setAttribute('aria-expanded', jah ? 'true' : 'false');
           }
+          const nahtav = () => kast.style.display !== 'none';
+          nupp.addEventListener('click', () => naita(!nahtav()));
           document.addEventListener('keydown', function (e) {
             if (e.repeat) return;                            // hoitud klahv ei tohi edasi-tagasi lülitada
-            if (e.ctrlKey && (e.code === 'Backquote' || e.key === 'ˇ')) { e.preventDefault(); vaheta(); }
+            if (e.ctrlKey && (e.code === 'Backquote' || e.key === 'ˇ')) { e.preventDefault(); naita(!nahtav()); }
           });
-          document.querySelectorAll('#lahendus .card-header').forEach(function (h) {
-            h.addEventListener('click', function () {
-              const b = h.nextElementSibling; b.style.display = b.style.display === 'none' ? '' : 'none';
-            });
+          const kaardid = [...document.querySelectorAll('#lahendus .samm-kaart')];
+          kaardid.forEach(k => k.querySelector('.samm-pea').addEventListener('click', () => k.classList.toggle('kokku')));
+          let kokkuVoltud = false;
+          volt.addEventListener('click', () => {
+            kokkuVoltud = !kokkuVoltud;
+            kaardid.forEach(k => k.classList.toggle('kokku', kokkuVoltud));
+            volt.textContent = kokkuVoltud ? 'Ava kõik' : 'Voldi kõik kokku';
           });
+          naita(false);
         })();
     </script>
 }
@@ -131,14 +165,8 @@
         let graafik, uuendusAeg;
         const graafikuId = @Model.Id;
         const valem = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Valem));
-        const tuletis = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Tuletis));
 
-        function punktideks(d) {
-          return {
-            f:  d.x.map((x, i) => ({ x: x, y: d.y[i] })),
-            df: d.x.map((x, i) => ({ x: x, y: d.dy[i] }))
-          };
-        }
+        function punktideks(d) { return d.x.map((x, i) => ({ x: x, y: d.y[i] })); }
 
         // Pärast suumi/liigutamist laadime nähtava piirkonna ümber uued punktid,
         // et joon oleks ka lähedalt sile ja ei lõppeks poole peal.
@@ -152,9 +180,7 @@
           const lo = a - w, hi = b + w, st = Math.max(w / 300, 0.0005);
           const r = await fetch(`/Funktsioonid/Punktid/${graafikuId}?min=${lo.toFixed(6)}&max=${hi.toFixed(6)}&samm=${st.toFixed(6)}`);
           if (!r.ok || c !== graafik) return;
-          const p = punktideks(await r.json());
-          c.data.datasets[0].data = p.f;
-          c.data.datasets[1].data = p.df;
+          c.data.datasets[0].data = punktideks(await r.json());
           c.update('none');
         }
         function suumi(k) { if (graafik) { graafik.zoom(k); viiviUuendus(graafik); } }
@@ -166,21 +192,19 @@
           const r = await fetch(`/Funktsioonid/Punktid/${graafikuId}?min=${min}&max=${max}&samm=${samm}`);
           if (!r.ok) { alert('Vigane vahemik'); return; }
           const d = await r.json();
-          const p = punktideks(d);
           document.getElementById('graafikuTeade').textContent =
             d.y.includes(null) ? 'Funktsioon pole mõnes punktis määratud.' : 'Funktsioon on määratud iga x korral.';
           if (graafik) graafik.destroy();
           graafik = new Chart(document.getElementById('funktsiooniGraafik').getContext('2d'), {
             type: 'scatter',
             data: { datasets: [
-              { label: 'f(x) = ' + valem, data: p.f, borderColor: '#2a48c8', borderWidth: 2.5,
-                pointRadius: 0, showLine: true, tension: 0.3, spanGaps: false },
-              { label: "f'(x) = " + tuletis, data: p.df, borderColor: '#a83228', borderWidth: 2,
-                borderDash: [6, 4], pointRadius: 0, showLine: true, spanGaps: false }
+              { label: 'f(x) = ' + valem, data: punktideks(d), borderColor: '#4f46e5', borderWidth: 2.5,
+                pointRadius: 0, showLine: true, tension: 0.3, spanGaps: false }
             ]},
             options: {
               responsive: true, maintainAspectRatio: false, animation: false,
               plugins: {
+                legend: { display: false },
                 zoom: {
                   zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'xy',
                           onZoomComplete: ({ chart }) => viiviUuendus(chart) },
